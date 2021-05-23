@@ -7,28 +7,28 @@ const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
-router.put(
+router.post(
   '/signup',
-  [
-    body('email')
-      .isEmail()
-      .withMessage('Please enter a valid email.')
-      .custom((value, { req }) => {
-        return User.findOne({ email: value }).then(userDoc => {
-          if (userDoc) {
-            return Promise.reject('E-Mail address already exists!');
-          }
-        });
-      })
-      .normalizeEmail(),
-    body('password')
-      .trim()
-      .isLength({ min: 5 }),
-    body('name')
-      .trim()
-      .not()
-      .isEmpty()
-  ],
+  // [
+  //   body('email')
+  //     .isEmail()
+  //     .withMessage('Please enter a valid email.')
+  //     .custom((value, { req }) => {
+  //       return User.findOne({ email: value }).then(userDoc => {
+  //         if (userDoc) {
+  //           return Promise.reject('E-Mail address already exists!');
+  //         }
+  //       });
+  //     })
+  //     .normalizeEmail(),
+  //   body('password')
+  //     .trim()
+  //     .isLength({ min: 5 }),
+  //   body('name')
+  //     .trim()
+  //     .not()
+  //     .isEmpty()
+  // ],
   authController.signup
 );
 
@@ -47,5 +47,8 @@ router.patch(
   ],
   authController.updateUserStatus
 );
+
+// /auth/user/post
+router.post('/user/post', authController.createPost);
 
 module.exports = router;
