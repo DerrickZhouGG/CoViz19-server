@@ -43,4 +43,7 @@ router.get('/user/posts', authController.getPosts);
 // GET /auth/user/avgRecoveryDays
 router.get('/user/avgRecoveryDays', authController.getAvgRecoveryDays);
 
+// GET /auth/user/recoveryPercent
+router.get('/user/recoveryPercent', authController.recoveryPercent);
+
 module.exports = router;

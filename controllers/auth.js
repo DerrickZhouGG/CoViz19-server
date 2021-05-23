@@ -284,3 +284,23 @@ exports.getAvgRecoveryDays = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.recoveryPercent = async (req, res, next) => {
+  try {
+    const users = await User.find({}, { recoveryDate: 1 }),
+      total = users.length;
+    let recovered = 0;
+    for (let user of users) {
+      if (user.recoveryDate != null) recovered++;
+    }
+    res.status(200).json({
+      message: 'Fetched recoveryPercent successfully.',
+      recoveryPercent: recovered / total,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
