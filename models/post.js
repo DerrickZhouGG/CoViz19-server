@@ -10,13 +10,11 @@ const postSchema = new Schema(
     },
     questRef: {
       type: Schema.Types.ObjectId,
-      ref: 'Quest',
-      required: true
+      ref: 'Quest'
     },
     imgRef: [
       {
-        type: String,
-        required: false
+        type: String
       }
     ],
     content: {
@@ -29,13 +27,14 @@ const postSchema = new Schema(
     },
     comments: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'Post',
+        // type: Schema.Types.ObjectId,
+        // ref: 'Post',
       }
     ],
     reactions: [
       {
         // userRef: {type: Schema.Types.ObjectId},
+        // 0 for super sad, 2 for like, 4 for super happy
         // type: {type: Number}
       }
     ],
@@ -45,7 +44,6 @@ const postSchema = new Schema(
     },
     popularity: {
       type: Number,
-      required: true,
       default: 0
     },
   }, { timestamps: true });

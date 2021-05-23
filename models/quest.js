@@ -9,6 +9,7 @@ const questSchema = new Schema(
       required: true
     },
     symptom: {
+      // 0 for none, 1 for inital, 2 for severe
       // hasFever: Number,
       // hasCough: Number,
       // isTired: Number,
@@ -27,15 +28,13 @@ const questSchema = new Schema(
       type: String
     },
     isInit: {
-      type: Boolean,
-      default: true
+      type: Boolean
     },
     diagDate: {
-      type: Date,
-      required: true
+      type: String
     },
     recoveryDate: {
-      type: Date
+      type: String
     },
   }, { timestamps: true });
 

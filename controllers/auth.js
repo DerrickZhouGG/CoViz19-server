@@ -1,9 +1,11 @@
 const { validationResult } = require('express-validator/check');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const ObjectId = require('mongodb').ObjectID;
 
 const User = require('../models/user');
 const Post = require('../models/post');
+const Quest = require('../models/quest');
 
 exports.signup = async (req, res, next) => {
   // const errors = validationResult(req);
@@ -13,15 +15,11 @@ exports.signup = async (req, res, next) => {
   //   error.data = errors.array();
   //   throw error;
   // }
-  const { email, password, diagDate, recoveryDate } = req.body;
+  const { email, password } = req.body;
   try {
-    const hashedPw = await bcrypt.hash(password, 12);
-
     const user = new User({
       email,
-      password,
-      diagDate,
-      recoveryDate
+      password: await bcrypt.hash(password, 12)
     });
     const result = await user.save();
     res.status(201).json({ message: 'User created!', userId: result._id.toString() });
@@ -34,11 +32,10 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
   let loadedUser;
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email });
     if (!user) {
       const error = new Error('A user with this email could not be found.');
       error.statusCode = 401;
@@ -59,7 +56,7 @@ exports.login = async (req, res, next) => {
       'somesupersecretsecret',
       { expiresIn: '1h' }
     );
-    res.status(200).json({ token: token, userId: loadedUser._id.toString() });
+    res.status(200).json({ token, userId: loadedUser._id.toString() });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -107,16 +104,16 @@ exports.updateUserStatus = async (req, res, next) => {
 
 exports.createPost = async (req, res, next) => {
   try {
-    const { userRef, questRef, content, imgRef, loc } = req.body;
-    const user = await User.findById(userRef);
+    const { userId, questRef, content, imgRef, loc } = req.body;
+    const user = await User.findById(userId);
     if (!user) {
       const error = new Error('User not found.');
       error.statusCode = 404;
       throw error;
     }
 
-    const post = new Post({
-      userRef,
+    const post = new Quest({
+      userRef: ObjectId(userId),
       questRef,
       content,
       imgRef,
@@ -128,7 +125,79 @@ exports.createPost = async (req, res, next) => {
     res.status(201).json({
       message: 'Post created successfully!',
       post: post,
-      creator: { _id: user._id.toString(), name: user.name }
+      userId: user._id.toString()
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.createQuest = async (req, res, next) => {
+  try {
+    const { userId, Symptom, ageRange, content, imgRef, diagDate, recoveryDate, isInit } = req.body;
+    console.log(userId);
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error('User not found.');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (!diagDate) diagDate = Date.now().toString();
+    const newQuest = new Quest({
+      userRef: ObjectId(userId),
+      Symptom,
+      ageRange,
+      content,
+      loc,
+      diagDate,
+      recoveryDate,
+      isInit
+    });
+    await newQuest.save();
+    const newQuestRef = newQuest._id
+    if (isInit) {
+      user.initQuest = newQuestRef;
+      user.ageRange = ageRange;
+      user.loc = loc;
+      user.diagDate = diagDate;
+      user.recoveryDate = recoveryDate
+    } else {
+      user.quests.push(newQuestRef);
+    }
+    await user.save();
+    res.status(201).json({
+      message: 'Quest created successfully!',
+      quest: newQuest,
+      userId: newQuestReftoString()
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.reactPost = async (req, res, next) => {
+  try {
+    const { userId, postId, reaction } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error('User not found.');
+      error.statusCode = 404;
+      throw error;
+    }
+    const post = await Post.findById(postId);
+    if (!reaction) reaction = 2;
+    post.reactions.push({ userref: ObjectId(userId), type: reaction });
+    await post.save();
+    res.status(201).json({
+      message: 'Reaction added successfully!',
+      post,
+      userId
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -140,7 +209,7 @@ exports.createPost = async (req, res, next) => {
 
 exports.createComment = async (req, res, next) => {
   try {
-    const { userRef, questRef, parentPostRef, content, imgRef, loc } = req.body;
+    const { userId, questId, parentPostRef, content, imgRef, loc } = req.body;
     const user = await User.findById(userRef);
     if (!user) {
       const error = new Error('User not found.');
@@ -150,7 +219,7 @@ exports.createComment = async (req, res, next) => {
 
     const comment = new Post({
       userRef,
-      questRef,
+      questRef: ObjectId(questId),
       parentPostRef,
       content,
       imgRef,
@@ -162,7 +231,7 @@ exports.createComment = async (req, res, next) => {
     res.status(201).json({
       message: 'Post created successfully!',
       comment,
-      creator: { _id: user._id, name: user.name }
+      userId: user._id.toString()
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -185,6 +254,28 @@ exports.getPosts = async (req, res, next) => {
       message: 'Fetched posts successfully.',
       posts: posts,
       totalItems: totalItems
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.getAvgRecoveryDays = async (req, res, next) => {
+  try {
+    const users = await User.find({}, { recoveryDate: 1, diagDate: 1 }),
+      DAYS_PER_MILISECOND = 1000 * 60 * 60 * 24;
+    let avgDays = 0
+    for (let user of users) {
+      let { recoveryDate, diagDate } = user;
+      if (!recoveryDate) continue;
+      avgDays += (parseInt(recoveryDate) - parseInt(diagDate)) / DAYS_PER_MILISECOND;
+    }
+    res.status(200).json({
+      message: 'Fetched avgRecoveryDays successfully.',
+      avgDays,
     });
   } catch (err) {
     if (!err.statusCode) {

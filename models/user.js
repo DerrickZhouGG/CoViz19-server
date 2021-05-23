@@ -10,6 +10,11 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  /* 0 => not provided
+     1 => 0~18 yrs old
+     2 => 19 ~ 39 yrs old
+     3 => 40 ~59 yrs old
+     4 => 60+ */
   ageRange: {
     type: Number,
     enum: [0, 1, 2, 3, 4],
@@ -37,7 +42,6 @@ const userSchema = new Schema({
   ],
   diagDate: {
     type: String,
-    required: true
   },
   recoveryDate: {
     type: String
