@@ -48,7 +48,10 @@ router.patch(
   authController.updateUserStatus
 );
 
-// /auth/user/post
+// POST /auth/user/post
 router.post('/user/post', authController.createPost);
+
+// GET /auth/user/posts
+router.get('/user/posts', authController.getPosts);
 
 module.exports = router;
