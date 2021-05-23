@@ -41,9 +41,7 @@ const userSchema = new Schema({
     default: new Date()
   },
   recoveryDate: {
-    type: Date,
-    required: true,
-    default: new Date()
+    type: Date
   },
 }, { timestamps: true });
 
