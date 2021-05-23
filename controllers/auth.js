@@ -137,8 +137,7 @@ exports.createPost = async (req, res, next) => {
 
 exports.createQuest = async (req, res, next) => {
   try {
-    const { userId, Symptom, ageRange, content, imgRef, diagDate, recoveryDate, isInit } = req.body;
-    console.log(userId);
+    const { userId, symptom, ageRange, content, imgRef, diagDate, recoveryDate, isInit } = req.body;
     const user = await User.findById(userId);
     if (!user) {
       const error = new Error('User not found.');
@@ -148,10 +147,9 @@ exports.createQuest = async (req, res, next) => {
     if (!diagDate) diagDate = Date.now().toString();
     const newQuest = new Quest({
       userRef: ObjectId(userId),
-      Symptom,
+      symptom,
       ageRange,
       content,
-      loc,
       diagDate,
       recoveryDate,
       isInit
@@ -160,8 +158,8 @@ exports.createQuest = async (req, res, next) => {
     const newQuestRef = newQuest._id
     if (isInit) {
       user.initQuest = newQuestRef;
+      user.symptom = symptom;
       user.ageRange = ageRange;
-      user.loc = loc;
       user.diagDate = diagDate;
       user.recoveryDate = recoveryDate
     } else {
@@ -171,7 +169,7 @@ exports.createQuest = async (req, res, next) => {
     res.status(201).json({
       message: 'Quest created successfully!',
       quest: newQuest,
-      userId: newQuestReftoString()
+      userId: newQuestRef.toString()
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -192,7 +190,7 @@ exports.reactPost = async (req, res, next) => {
     }
     const post = await Post.findById(postId);
     if (!reaction) reaction = 2;
-    post.reactions.push({ userref: ObjectId(userId), type: reaction });
+    post.reactions.push({ userId: reaction });
     await post.save();
     res.status(201).json({
       message: 'Reaction added successfully!',
@@ -267,15 +265,17 @@ exports.getAvgRecoveryDays = async (req, res, next) => {
   try {
     const users = await User.find({}, { recoveryDate: 1, diagDate: 1 }),
       DAYS_PER_MILISECOND = 1000 * 60 * 60 * 24;
-    let avgDays = 0
+    let allDays = 0,
+      userCount = 0;
     for (let user of users) {
       let { recoveryDate, diagDate } = user;
       if (!recoveryDate) continue;
-      avgDays += (parseInt(recoveryDate) - parseInt(diagDate)) / DAYS_PER_MILISECOND;
+      userCount++;
+      allDays += (parseInt(recoveryDate) - parseInt(diagDate)) / DAYS_PER_MILISECOND;
     }
     res.status(200).json({
       message: 'Fetched avgRecoveryDays successfully.',
-      avgDays,
+      avgDays: allDays / userCount,
     });
   } catch (err) {
     if (!err.statusCode) {

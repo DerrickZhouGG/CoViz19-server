@@ -29,9 +29,8 @@ const postSchema = new Schema(
     ],
     reactions: [
       {
-        // userRef: {type: Schema.Types.ObjectId},
-        // 0 for super sad, 2 for like, 4 for super happy
-        // type: {type: Number}
+        // userId: reaction
+        // reaction is a number, 0 for super sad, 2 for like, 4 for super happy
       }
     ],
     parentPost: {
