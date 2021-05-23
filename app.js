@@ -61,9 +61,9 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    'something'
+    'mongodb+srv://coviz19:k7YXZbw1k2DJ00bE@cluster0.4jivt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
   )
-  .then(result => {
-    app.listen(8080);
+  .then(client => {
+    app.listen(3000);
   })
   .catch(err => console.log(err));

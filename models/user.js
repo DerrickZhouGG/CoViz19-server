@@ -12,12 +12,12 @@ const userSchema = new Schema({
   },
   ageRange: {
     type: Number,
-    required: true,
+    enum: [0, 1, 2, 3, 4],
     default: 0
   },
-  location: {
-    type: [Number, Number],
-    required: false,
+  loc: {
+    // lat: Number
+    // lng: Number
   },
   initQuest: {
     type: Schema.Types.ObjectId,
@@ -36,12 +36,12 @@ const userSchema = new Schema({
     },
   ],
   diagDate: {
-    type: String,
+    type: Date,
     required: true,
     default: new Date()
   },
   recoveryDate: {
-    type: String,
+    type: Date,
     required: true,
     default: new Date()
   },

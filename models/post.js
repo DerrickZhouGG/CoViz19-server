@@ -23,9 +23,9 @@ const postSchema = new Schema(
       type: String,
       required: true
     },
-    location: {
-      type: [Number, Number],
-      required: false,
+    loc: {
+      // lat: Number
+      // lng: Number
     },
     comments: [
       {
@@ -35,27 +35,19 @@ const postSchema = new Schema(
     ],
     reactions: [
       {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: 'User'
-        },
-        number: {
-          type: Number
-        }
+        // userRef: {type: Schema.Types.ObjectId},
+        // type: {type: Number}
       }
     ],
     parentPost: {
       type: Schema.Types.ObjectId,
-      ref: 'Post',
-      required: false
+      ref: 'Post'
     },
     popularity: {
       type: Number,
       required: true,
       default: 0
     },
-  },
-  { timestamps: true }
-);
+  }, { timestamps: true });
 
 module.exports = mongoose.model('Post', postSchema);

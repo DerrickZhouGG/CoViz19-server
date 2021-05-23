@@ -8,41 +8,35 @@ const questSchema = new Schema(
       ref: 'User',
       required: true
     },
-    symptom: [
-      {
-        hasFever: Number,
-        hasCough: Number,
-        isTired: Number,
-        isDepressed: Number
-      }
-    ],
+    symptom: {
+      // hasFever: Number,
+      // hasCough: Number,
+      // isTired: Number,
+      // isDepressed: Number
+    },
     ageRange: {
       type: Number,
-      required: true
+      enum: [0, 1, 2, 3, 4],
+      default: 0
     },
     comment: {
       type: String,
       required: true
     },
     imgRef: {
-      type: String,
-      required: false
+      type: String
     },
     isInit: {
       type: Boolean,
-      required: true,
       default: true
     },
     diagDate: {
-      type: String,
+      type: Date,
       required: true
     },
     recoveryDate: {
-      type: String,
-      required: false
+      type: Date
     },
-  },
-  { timestamps: true }
-);
+  }, { timestamps: true });
 
 module.exports = mongoose.model('Quest', questSchema);
