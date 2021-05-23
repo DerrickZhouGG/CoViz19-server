@@ -10,20 +10,41 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  name: {
-    type: String,
-    required: true
+  ageRange: {
+    type: Number,
+    required: true,
+    default: 0
   },
-  status: {
-    type: String,
-    default: 'I am new!'
+  location: {
+    type: [Number, Number],
+    required: false,
   },
+  initQuest: {
+    type: Schema.Types.ObjectId,
+    ref: 'Quest'
+  },
+  quests: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Quest'
+    },
+  ],
   posts: [
     {
       type: Schema.Types.ObjectId,
       ref: 'Post'
-    }
-  ]
-});
+    },
+  ],
+  diagDate: {
+    type: String,
+    required: true,
+    default: new Date()
+  },
+  recoveryDate: {
+    type: String,
+    required: true,
+    default: new Date()
+  },
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
