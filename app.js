@@ -14,7 +14,11 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan')
 
-const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.4jivt.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true&w=majority`;
+const MONGO_USER = 'coviz19';
+const MONGO_PASSWORD = 'k7YXZbw1k2DJ00bE';
+const MONGO_DATABASE = 'myFirstDatabase';
+
+const MONGODB_URI = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.4jivt.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`;
 //const MONGODB_URI = `mongodb+srv://coviz19:k7YXZbw1k2DJ00bE@cluster0.4jivt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const app = express();
