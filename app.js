@@ -44,9 +44,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-
-app.use(helmet());
-app.use(compression());
 // const accessLogStream = fs.createWriteStream(
 //   path.join(__dirname, 'access.log'),
 //   { flags: 'a' }
@@ -59,6 +56,9 @@ app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 );
 app.use('/images', express.static(path.join(__dirname, 'images')));
+
+app.use(helmet());
+app.use(compression());
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
