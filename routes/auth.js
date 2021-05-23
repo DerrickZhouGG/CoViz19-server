@@ -51,6 +51,9 @@ router.patch(
 // POST /auth/user/post
 router.post('/user/post', authController.createPost);
 
+// POST /auth/user/comment
+router.post('/user/comment', authController.createComment);
+
 // GET /auth/user/posts
 router.get('/user/posts', authController.getPosts);
 

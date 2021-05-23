@@ -139,6 +139,40 @@ exports.createPost = async (req, res, next) => {
   }
 };
 
+exports.createComment = async (req, res, next) => {
+  try {
+    const { userRef, questRef, parentPostRef, content, imgRef, loc } = req.body;
+    const user = await User.findById(userRef);
+    if (!user) {
+      const error = new Error('User not found.');
+      error.statusCode = 404;
+      throw error;
+    }
+    
+    const comment = new Post({
+      userRef,
+      questRef,
+      parentPostRef,
+      content,
+      imgRef,
+      loc
+    });
+    await comment.save();
+    user.posts.push(post);
+    await user.save();
+    res.status(201).json({
+      message: 'Post created successfully!',
+      comment,
+      creator: { _id: user._id, name: user.name }
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 2;
