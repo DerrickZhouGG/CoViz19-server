@@ -124,7 +124,7 @@ exports.createPost = async (req, res, next) => {
     res.status(201).json({
       message: 'Post created successfully!',
       post: post,
-      userId: user._id.toString()
+      userId
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -207,7 +207,7 @@ exports.reactPost = async (req, res, next) => {
 exports.createComment = async (req, res, next) => {
   try {
     const { userId, parentPostRef, content, imgRef, loc } = req.body;
-    const user = await User.findById(userRef);
+    const user = await User.findById(userId);
     if (!user) {
       const error = new Error('User not found.');
       error.statusCode = 404;
@@ -215,7 +215,7 @@ exports.createComment = async (req, res, next) => {
     }
 
     const comment = new Post({
-      userRef,
+      userRef: ObjectId(userId),
       parentPostRef,
       content,
       imgRef,
@@ -227,7 +227,7 @@ exports.createComment = async (req, res, next) => {
     res.status(201).json({
       message: 'Post created successfully!',
       comment,
-      userId: user._id.toString()
+      userId
     });
   } catch (err) {
     if (!err.statusCode) {
