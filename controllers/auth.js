@@ -262,13 +262,9 @@ exports.createComment = async (req, res, next) => {
 };
 
 exports.getPosts = async (req, res, next) => {
-  const currentPage = req.query.page || 1;
-  const perPage = 2;
   try {
     const totalItems = await Post.find().countDocuments();
-    const posts = await Post.find()
-      .skip((currentPage - 1) * perPage)
-      .limit(perPage);
+    const posts = await Post.find();
 
     res.status(200).json({
       message: 'Fetched posts successfully.',
