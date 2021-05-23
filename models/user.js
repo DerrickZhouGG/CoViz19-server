@@ -20,6 +20,13 @@ const userSchema = new Schema({
     enum: [0, 1, 2, 3, 4],
     default: 0
   },
+  symptom: {
+    // 0 for none, 1 for inital, 2 for severe
+    // hasFever: Number,
+    // hasCough: Number,
+    // isTired: Number,
+    // isDepressed: Number
+  },
   loc: {
     // lat: Number
     // lng: Number

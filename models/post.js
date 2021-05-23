@@ -8,10 +8,6 @@ const postSchema = new Schema(
       ref: 'User',
       required: true
     },
-    questRef: {
-      type: Schema.Types.ObjectId,
-      ref: 'Quest'
-    },
     imgRef: [
       {
         type: String
