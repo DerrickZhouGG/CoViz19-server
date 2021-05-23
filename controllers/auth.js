@@ -104,7 +104,7 @@ exports.updateUserStatus = async (req, res, next) => {
 
 exports.createPost = async (req, res, next) => {
   try {
-    const { userId, questRef, content, imgRef, loc } = req.body;
+    const { userId, content, imgRef, loc } = req.body;
     const user = await User.findById(userId);
     if (!user) {
       const error = new Error('User not found.');
@@ -114,7 +114,6 @@ exports.createPost = async (req, res, next) => {
 
     const post = new Quest({
       userRef: ObjectId(userId),
-      questRef,
       content,
       imgRef,
       loc
@@ -207,7 +206,7 @@ exports.reactPost = async (req, res, next) => {
 
 exports.createComment = async (req, res, next) => {
   try {
-    const { userId, questId, parentPostRef, content, imgRef, loc } = req.body;
+    const { userId, parentPostRef, content, imgRef, loc } = req.body;
     const user = await User.findById(userRef);
     if (!user) {
       const error = new Error('User not found.');
@@ -217,7 +216,6 @@ exports.createComment = async (req, res, next) => {
 
     const comment = new Post({
       userRef,
-      questRef: ObjectId(questId),
       parentPostRef,
       content,
       imgRef,
