@@ -62,7 +62,7 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(
     'mongodb+srv://coviz19:k7YXZbw1k2DJ00bE@cluster0.4jivt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-  )
+    , { useNewUrlParser: true, useUnifiedTopology: true })
   .then(client => {
     app.listen(3000);
   })
