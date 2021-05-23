@@ -40,6 +40,9 @@ router.post('/user/react', authController.reactPost);
 // GET /auth/user/posts
 router.get('/user/posts', authController.getPosts);
 
+// GET /auth/user/posts
+router.get('/user/quests', authController.getQuests);
+
 // GET /auth/user/avgRecoveryDays
 router.get('/user/avgRecoveryDays', authController.getAvgRecoveryDays);
 

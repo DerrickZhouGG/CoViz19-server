@@ -112,7 +112,7 @@ exports.createPost = async (req, res, next) => {
       throw error;
     }
 
-    const post = new Quest({
+    const post = new Post({
       userRef: ObjectId(userId),
       content,
       imgRef,
@@ -121,6 +121,7 @@ exports.createPost = async (req, res, next) => {
     await post.save();
     user.posts.push(post);
     await user.save();
+    console.log(post);
     res.status(201).json({
       message: 'Post created successfully!',
       post: post,
@@ -151,19 +152,17 @@ exports.createQuest = async (req, res, next) => {
       content,
       diagDate,
       recoveryDate,
-      isInit
+      isInit: isInit || true
     });
     await newQuest.save();
     const newQuestRef = newQuest._id
     if (isInit) {
-      user.initQuest = newQuestRef;
       user.symptom = symptom;
       user.ageRange = ageRange;
       user.diagDate = diagDate;
       user.recoveryDate = recoveryDate
-    } else {
-      user.quests.push(newQuestRef);
     }
+    user.quests.push(newQuestRef);
     await user.save();
     res.status(201).json({
       message: 'Quest created successfully!',
@@ -204,9 +203,32 @@ exports.reactPost = async (req, res, next) => {
   }
 };
 
+exports.getQuests = async (req, res, next) => {
+  try {
+    const { userId } = req.query;
+    const user = await User.findById(userId, { quests: 1 });
+    if (!user) {
+      const error = new Error('User not found.');
+      error.statusCode = 404;
+      throw error;
+    }
+    const quests = await Quest.find({ _id: { $in: user.quests } });
+    res.status(201).json({
+      message: 'Read quests successfully!',
+      quests,
+      userId
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 exports.createComment = async (req, res, next) => {
   try {
-    const { userId, parentPostRef, content, imgRef, loc } = req.body;
+    const { userId, parentPostId, content, imgRef, loc } = req.body;
     const user = await User.findById(userId);
     if (!user) {
       const error = new Error('User not found.');
@@ -216,16 +238,18 @@ exports.createComment = async (req, res, next) => {
 
     const comment = new Post({
       userRef: ObjectId(userId),
-      parentPostRef,
+      parentPostRef: ObjectId(parentPostId),
       content,
       imgRef,
       loc
     });
     await comment.save();
-    user.posts.push(post);
+    const parentPost = await Post.findById(parentPostId);
+    parentPost.comments.push(comment);
+    await parentPost.save();
     await user.save();
     res.status(201).json({
-      message: 'Post created successfully!',
+      message: 'Comment created successfully!',
       comment,
       userId
     });
@@ -262,18 +286,18 @@ exports.getPosts = async (req, res, next) => {
 exports.getAvgRecoveryDays = async (req, res, next) => {
   try {
     const users = await User.find({}, { recoveryDate: 1, diagDate: 1 }),
-      DAYS_PER_MILISECOND = 1000 * 60 * 60 * 24;
+      DAYS_PER_SECOND = 60 * 60 * 24;
     let allDays = 0,
       userCount = 0;
     for (let user of users) {
       let { recoveryDate, diagDate } = user;
       if (!recoveryDate) continue;
       userCount++;
-      allDays += (parseInt(recoveryDate) - parseInt(diagDate)) / DAYS_PER_MILISECOND;
+      allDays += (parseInt(recoveryDate) - parseInt(diagDate)) / DAYS_PER_SECOND;
     }
     res.status(200).json({
       message: 'Fetched avgRecoveryDays successfully.',
-      avgDays: allDays / userCount,
+      avgDays: parseInt(allDays / userCount),
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -285,15 +309,15 @@ exports.getAvgRecoveryDays = async (req, res, next) => {
 
 exports.recoveryPercent = async (req, res, next) => {
   try {
-    const users = await User.find({}, { recoveryDate: 1 }),
+    const users = await User.find({}, { email: 1, recoveryDate: 1 }),
       total = users.length;
     let recovered = 0;
     for (let user of users) {
-      if (user.recoveryDate != null) recovered++;
+      if (user.recoveryDate) recovered++;
     }
     res.status(200).json({
       message: 'Fetched recoveryPercent successfully.',
-      recoveryPercent: recovered / total,
+      recoveryPercent: parseInt(recovered * 100 / total),
     });
   } catch (err) {
     if (!err.statusCode) {
