@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -8,6 +9,13 @@ const multer = require('multer');
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
 const testRoutes = require('./routes/test');
+
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan')
+
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.4jivt.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true&w=majority`;
+//const MONGODB_URI = `mongodb+srv://coviz19:k7YXZbw1k2DJ00bE@cluster0.4jivt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const app = express();
 
@@ -31,6 +39,15 @@ const fileFilter = (req, file, cb) => {
     cb(null, false);
   }
 };
+
+
+app.use(helmet());
+app.use(compression());
+// const accessLogStream = fs.createWriteStream(
+//   path.join(__dirname, 'access.log'),
+//   { flags: 'a' }
+// );
+// app.use(morgan('combined', { stream: accessLogStream }));
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
@@ -62,10 +79,8 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(
-    'mongodb+srv://coviz19:k7YXZbw1k2DJ00bE@cluster0.4jivt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-    , { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(client => {
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch(err => console.log(err));
