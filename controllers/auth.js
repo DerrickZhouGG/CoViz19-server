@@ -13,19 +13,18 @@ exports.signup = async (req, res, next) => {
   //   error.data = errors.array();
   //   throw error;
   // }
-  const email = req.body.email;
-  const name = req.body.name;
-  const password = req.body.password;
+  const { email, password, diagDate, recoveryDate } = req.body;
   try {
     const hashedPw = await bcrypt.hash(password, 12);
 
     const user = new User({
-      email: email,
-      password: hashedPw,
-      name: name
+      email,
+      password,
+      diagDate,
+      recoveryDate
     });
     const result = await user.save();
-    res.status(201).json({ message: 'User created!', userId: result._id });
+    res.status(201).json({ message: 'User created!', userId: result._id.toString() });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -115,7 +114,7 @@ exports.createPost = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    
+
     const post = new Post({
       userRef,
       questRef,
@@ -129,7 +128,7 @@ exports.createPost = async (req, res, next) => {
     res.status(201).json({
       message: 'Post created successfully!',
       post: post,
-      creator: { _id: user._id, name: user.name }
+      creator: { _id: user._id.toString(), name: user.name }
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -148,7 +147,7 @@ exports.createComment = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    
+
     const comment = new Post({
       userRef,
       questRef,

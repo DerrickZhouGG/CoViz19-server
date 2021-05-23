@@ -36,12 +36,11 @@ const userSchema = new Schema({
     },
   ],
   diagDate: {
-    type: Date,
-    required: true,
-    default: new Date()
+    type: String,
+    required: true
   },
   recoveryDate: {
-    type: Date
+    type: String
   },
 }, { timestamps: true });
 
